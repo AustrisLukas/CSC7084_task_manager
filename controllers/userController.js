@@ -1,0 +1,135 @@
+const path = require("path");
+const { format, isAfter, differenceInCalendarDays } = require("date-fns");
+const { formatDisplayDate, limitTextLength, formatDate, formatDateforHTML, getStarUrl, getCardStyle, logMessage } = require("../utils/homeUtils");
+const { getCheckboxState } = require(path.join(__dirname, "/..", "/utils/filterSortUtils.js"));
+const axios = require("axios");
+
+/**
+ * Renders the home page with user-specific tasks, categories and sort preferences.
+ * If category and sort preferance not available - page rendered with default settings.
+ * Redirects to the login page if the user is not authenticated.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} req.session - User session data.
+ * @param {Object} req.session.user - The logged-in user's session details.
+ * @param {number} req.session.user.user_id - The ID of the logged-in user.
+ * @param {Object} req.session.views - User's session-based UI preferences.
+ * @param {string} [req.session.views.sort_by] - Sorting preference for tasks.
+ * @param {string[]} [req.session.views.selected_category] - User-selected categories.
+ * @param {string} [req.session.views.show_completed] - Whether to show completed tasks.
+ * @param {Object} res - Express response object.
+ *
+ * @returns {void}
+ */
+exports.renderHome = async (req, res) => {
+  logMessage("Executing renderHome");
+
+  const { user_id } = req.session.user;
+  const sort_by = req.session.views?.sort_by ?? undefined;
+  const show_completed = req.session.views?.show_completed ?? "off";
+  const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+  const endpoint_userTasks = process.env.API_ENDPOINT + `/user/tasks`;
+
+  // code bellow provides res.render with user selected categories from session.views.selected_category.
+  // if no session.views.selected_category is not available, ALL user-defined categories will be rendered.
+  try {
+    const userCategories = await axios.get(endpoint_userCategories);
+    // extract values from .json object
+    const categoryArray = Object.values(userCategories.data);
+    // put values in a string array
+    const selectAllCategories = categoryArray.map((item) => item.category_name);
+    const selected_category = req.session.views?.selected_category ?? selectAllCategories;
+
+    // retrieve userTask with filter and sort options in req.body
+    const userTasks = await axios.post(endpoint_userTasks, {
+      selected_category: selected_category,
+      show_completed: show_completed,
+      user_id: user_id,
+      sort_by: sort_by,
+    });
+    return res.render("home", {
+      elements: userTasks.data,
+      format,
+      isAfter,
+      differenceInCalendarDays,
+      user_categories: userCategories.data,
+      selected_categories: selected_category,
+      getCheckboxState,
+      show_completed,
+      getStarUrl,
+      getCardStyle,
+      formatDisplayDate,
+      limitTextLength,
+      formatDateforHTML,
+    });
+  } catch (error) {
+    console.error("Error fetching user categories:", error.message);
+  }
+};
+
+/**
+ * Applies user-selected filters (category, sorting, and completed tasks visibility)
+ * and stores them in the session. Redirects to the home page after applying filters.
+ *
+ * @param {Object} req - Express request object.
+ * @param {Object} req.body - Request body containing filter options.
+ * @param {string[]} req.body.selected_category - Array of selected category names.
+ * @param {string} req.body.sort_by - Sorting preference for tasks.
+ * @param {string} req.body.show_completed - Whether to show completed tasks ("on" or "off").
+ * @param {Object} req.session - User session object.
+ * @param {Object} res - Express response object.
+ *
+ * @returns {void}
+ */
+exports.applyFilters = async (req, res) => {
+  logMessage("Executing applyFilters");
+  const { selected_category, sort_by, show_completed } = req.body;
+  req.session.views = {
+    selected_category: selected_category,
+    sort_by: sort_by,
+    show_completed: show_completed,
+  };
+  return res.redirect("/");
+};
+
+/**
+ * Renders the "newTask" page with user-specific categories.
+ *
+ * @async
+ * @function renderNewTask
+ * @param {Object} req - Express request object.
+ * @param {Object} req.session - Session data.
+ * @param {Object} req.session.user - User session object.
+ * @param {number} req.session.user.user_id - ID of the logged-in user.
+ * @param {Object} res - Express response object.
+ * @returns {Promise<void>} Sends the rendered "newTask" page or an error response.
+ */
+exports.renderNewTask = async (req, res) => {
+  logMessage("Executing renderNewTask");
+
+  const { user_id } = req.session.user;
+  const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+
+  try {
+    const user_categories = await axios.get(endpoint_userCategories);
+    return res.render("newTask", { getStarUrl, user_categories: user_categories.data });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).send("Internal Server Error");
+  }
+};
+
+/**
+ * Renders a 404 error page.
+ *
+ * @function renderError
+ * @param {Object} req - Express request object.
+ * @param {Object} res - Express response object.
+ * @returns {void} Sends a 404 error response as HTML.
+ */
+exports.renderError = (req, res) => {
+  logMessage("Executing renderError");
+  //console.log(req)
+
+  return res.send("<h1>Error 404</h1> /n <p>Page not found</p>");
+};
