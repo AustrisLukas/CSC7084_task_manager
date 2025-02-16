@@ -1,13 +1,17 @@
-
 const express = require('express');
-const { renderHome, renderError, renderHome_filtered, renderLogin, renderRegister, processRegister, renderNewTask, processLogin } = require('./userController');
+const controller = require('../controllers/userController');
 const router = express.Router();
+const middleware = require('../middleware/auth')
+
+
+router.get('/', middleware.authenticateToken, controller.renderHome);
+router.get('/new',middleware.authenticateToken, controller.renderNewTask);
+
+router.post('/applyfilters',middleware.authenticateToken, controller.applyFilters);
+
+router.get('*', controller.renderError);
 
 
 
-router.get('/', renderHome);
-router.post('/',renderHome_filtered);
-router.get('/new', renderNewTask);
-router.get('*', renderError);
 
 module.exports = router;

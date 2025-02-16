@@ -3,8 +3,9 @@ const authRouter = express.Router();
 const {renderLogin, renderRegister, processLogin, processRegister} = require('./../controllers/authController');
 
 
-authRouter.get('/login', renderLogin);
 authRouter.get('/register', renderRegister);
+authRouter.get('/login', renderLogin);
+
 
 authRouter.post('/login', processLogin);
 authRouter.post('/register',processRegister);

@@ -1,18 +1,19 @@
 const express = require('express');
-//const morgan = require('morgan');
+const morgan = require('morgan');
 const fs = require('fs');
 const path = require('path');
 const router = require("./routes/userRoutes.js");
-const dotenv = require('dotenv').config({ path: './config.env' });
-const dbpool = require(path.join(__dirname, '/utils/dbconn.js'));
 const session = require("express-session");
 const auth = require(path.join(__dirname, '/routes/authRoutes.js'));
+const { format } = require('date-fns');
+const { logMessage } = require('./utils/homeUtils.js');
+const axios = require("axios");
 
 //const cookieParser = require("cookie-parser");
 //const session = require("express-session");
 //const authRouter = require("./routes/auth");
 
-
+const timestamp = format(new Date(), "HH:mm:ss"); 
 const app = express();
 
 app.use(express.json());
@@ -29,6 +30,7 @@ app.use(
     })
 );
 
+
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 
@@ -39,6 +41,7 @@ app.use('/', (req, res, next) =>{
     next();
 });
 */
+
 app.use('/auth', auth);
 app.use('/', router);
 startServer();
@@ -47,9 +50,9 @@ startServer();
 async function startServer(){
     try {
         const PORT = process.env.PORT || 3000;
-        await testDatabaseConn();
+        await testAPI();
         app.listen(PORT, () => {
-            console.log(`App - Listening on PORT: ${process.env.PORT}`);
+            console.log(`${timestamp} App: Listening on PORT: ${process.env.PORT}`);
         });
     } catch (error){
         console.log(`Failed to start application: ${error.message}`);
@@ -58,18 +61,15 @@ async function startServer(){
 };
 
 
-/**
- * Tests database connectivity with up to 3 retries, each separated by a 2-second delay.
- * Throws an error if all attempts fail.
- */
-async function testDatabaseConn(){
+async function testAPI(){
     let attempt = 0;
     const maxAttempt = 3;
+    const endpoint_testAPI = process.env.API_ENDPOINT + `/testAPI`;
 
     while (attempt <= maxAttempt) {
         try {
-            await dbpool.query('SELECT 1');
-            console.log(`Database - Success opening PORT: ${process.env.DB_PORT}`);
+            const result = await axios.get(endpoint_testAPI);
+            logMessage(`Test API successfull on ${process.env.API_ENDPOINT} `);
             return true;
         } catch (error) {
             attempt++;
@@ -77,7 +77,7 @@ async function testDatabaseConn(){
             console.error(error);
             
         }
-        if (attempt == maxAttempt) throw new Error('Database - Conection attempts exceeded.');
+        if (attempt == maxAttempt) throw new Error('Failed to establish connection to API - conection attempts exceeded.');
 
         // 2000ms delay before attempting read again.
         await new Promise((resolve) => {setTimeout(resolve, 2000)});

@@ -1,4 +1,4 @@
-const { format, isAfter, differenceInCalendarDays } = require("date-fns");
+const { format, differenceInCalendarDays } = require("date-fns");
 
 /**
  * Function utilises date-FNS module to format date object to String with DD/MMM/YYYY format.
@@ -6,6 +6,8 @@ const { format, isAfter, differenceInCalendarDays } = require("date-fns");
  * @returns formated String date DD/MMM/YYYY
  */
 function formatDisplayDate(dueDate){
+
+    dueDate = new Date(dueDate);
 
     let year= dueDate.getFullYear();
     let month= dueDate.getMonth();
@@ -72,7 +74,13 @@ function getCardStyle(dueDate, taskStatus){
 
 }
 
+function logMessage(message){
+
+    const timestamp = format(new Date(), "HH:mm:ss");
+    console.log(`${timestamp} App: ${message}`)
+}
 
 
-module.exports = {getStarUrl, getCardStyle, formatDisplayDate, limitTextLength};
+
+module.exports = {getStarUrl, getCardStyle, formatDisplayDate, limitTextLength, logMessage};
 
