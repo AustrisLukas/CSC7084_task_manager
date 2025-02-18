@@ -34,6 +34,12 @@
             </ul>
           </div>
           <div class="card-body">
+            <% if (error) { %>
+              <div class="alert alert-danger alert-dismissible fade show m-0 p-1" role="alert">
+                  <%= error %>
+                  <button type="button" class="btn-close pt-0" data-bs-dismiss="alert" style="transform: scale(0.8)" aria-label="Close"></button>
+              </div>
+          <% } %>
             <h5 class="card-title pt-3">Log in to your TaskSync account</h5>
             <form method="post" action="/auth/login">
               <!--INPUT user_email-->

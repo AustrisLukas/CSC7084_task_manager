@@ -5,27 +5,33 @@ const { logMessage } = require("../utils/homeUtils");
 
 exports.renderLogin = (req, res) => {
   logMessage("Executing renderLogin");
-  return res.render("login");
+  return res.render("login", {error: ""});
 };
 
 exports.processLogin = async (req, res) => {
   logMessage("Executing processLogin");
-
   const endpoint_processLogin = process.env.API_ENDPOINT + `/login`;
-  const response = await axios.post(endpoint_processLogin, req.body);
-  const { token } = response.data;
 
-  if (!token) {
-    return res.status(500).json({ message: "Token missing from response" });
+  try {
+    const response = await axios.post(endpoint_processLogin, req.body);
+    const { token } = response.data;
+    if (!token) {
+      return res.status(500).json({ message: "Token missing from response" });
+    }
+    req.session.token = token;
+    req.session.user = response.data.users[0];
+    res.redirect("/");
+  } catch (err) {
+    if (err.response.status === 401) return res.render("login", {error: `${err.response.data.error}`});
+    if (err.response.status === 404) return res.render("login", {error: `${err.response.data.error}`});
+    else console.log(err);
+
   }
-  req.session.token = token;
-  req.session.user = response.data.users[0];
-  res.redirect("/");
 };
 
 exports.renderRegister = (req, res) => {
   logMessage("Executing renderRegister");
-  res.render("register");
+  res.render("register", {error: ""});
 };
 
 /**
@@ -50,6 +56,7 @@ exports.processRegister = async (req, res) => {
 
   try {
     const result = await axios.post(endpoint_processRegister, req.body);
+    
     if (result.status === 200) {
       logMessage("New user registered succesfully, redirect to /auth/login");
       return res.redirect("/auth/login");
@@ -58,6 +65,7 @@ exports.processRegister = async (req, res) => {
       return res.send(result.data.message);
     }
   } catch (err) {
+    if (err.response.status === 409) return res.render('register',{error: `${err.response.data.error}`})
     console.log(`Error registering new user: ${err}`);
   }
 };
