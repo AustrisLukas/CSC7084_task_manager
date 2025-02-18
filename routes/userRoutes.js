@@ -8,6 +8,7 @@ router.get('/', middleware.authenticateToken, controller.renderHome);
 router.get('/new',middleware.authenticateToken, controller.renderNewTask);
 
 router.post('/applyfilters',middleware.authenticateToken, controller.applyFilters);
+router.post('/new',middleware.authenticateToken, controller.processNewTask);
 
 router.get('*', controller.renderError);
 

@@ -52,10 +52,10 @@ async function startServer(){
         const PORT = process.env.PORT || 3000;
         await testAPI();
         app.listen(PORT, () => {
-            console.log(`${timestamp} App: Listening on PORT: ${process.env.PORT}`);
+            logMessage(`Listening on PORT ${process.env.PORT}`)
         });
     } catch (error){
-        console.log(`Failed to start application: ${error.message}`);
+        logMessage(`Failed to start application: ${error.message}`)
         process.exit(1);
     }
 };
@@ -73,9 +73,7 @@ async function testAPI(){
             return true;
         } catch (error) {
             attempt++;
-            console.log(`Database - Error establishing after attempt ${attempt}`);
-            console.error(error);
-            
+            logMessage(`API endpoint unreachable after attempt ${attempt}`);  
         }
         if (attempt == maxAttempt) throw new Error('Failed to establish connection to API - conection attempts exceeded.');
 

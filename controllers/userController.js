@@ -108,11 +108,13 @@ exports.renderNewTask = async (req, res) => {
   logMessage("Executing renderNewTask");
 
   const { user_id } = req.session.user;
+  const message = req.body.message || "";
+  const warning = req.body.warning || "";
   const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
 
   try {
     const user_categories = await axios.get(endpoint_userCategories);
-    return res.render("newTask", { getStarUrl, user_categories: user_categories.data });
+    return res.render("newTask", { getStarUrl, user_categories: user_categories.data, message, warning });
   } catch (err) {
     console.log(err);
     return res.status(500).send("Internal Server Error");
@@ -132,4 +134,26 @@ exports.renderError = (req, res) => {
   //console.log(req)
 
   return res.send("<h1>Error 404</h1> /n <p>Page not found</p>");
+};
+
+exports.processNewTask = async (req, res) => {
+  logMessage("Executing processNewTask");
+  console.log(req.body);
+  //console.log(req.session);
+
+  const endpoint_processNewTask = process.env.API_ENDPOINT + `/newtask`;
+
+  try {
+    const response = await axios.post(endpoint_processNewTask, {
+      ...req.body,
+      user_id: req.session.user.user_id,
+    });
+
+    req.body.message = response.data.message;
+    return this.renderNewTask(req, res);
+    
+  } catch (err) {
+    req.body.warning = err.response.data.message
+    return this.renderNewTask(req, res);
+  }
 };
