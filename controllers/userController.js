@@ -133,7 +133,7 @@ exports.renderError = (req, res) => {
   logMessage("Executing renderError");
   //console.log(req)
 
-  return res.send("<h1>Error 404</h1> /n <p>Page not found</p>");
+  return res.send(`<h1>Error 404</h1> \n <p>${req.url}</p> <p>Page not found</p>`);
 };
 
 exports.processNewTask = async (req, res) => {
@@ -157,3 +157,8 @@ exports.processNewTask = async (req, res) => {
     return this.renderNewTask(req, res);
   }
 };
+
+exports.logout = (req,res) =>{
+    req.session.destroy();
+    res.redirect('/');
+}
