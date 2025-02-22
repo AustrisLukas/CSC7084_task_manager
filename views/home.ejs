@@ -134,7 +134,7 @@
                             <div class="card-body p-1">
                                 <a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop"
                                     data-taskID="<%=element.task_id%>" data-task_name="<%=element.task_name%>"
-                                    data-task_desc="<%=element.task_desc%>" data-dueDate="<%=element.due_date%>" data-cat="<%=element.task_category_id%>" data-star="<%=element.star_level%>"
+                                    data-task_desc="<%=element.task_desc%>" data-dueDate="<%=element.due_date%>" data-cat="<%=element.task_category_id%>" data-task_status_id ="<%=element.task_status_id%>" data-star="<%=element.star_level%>"
                                     style="text-decoration: none; color: rgb(30, 30, 30);">
                                     <h5 class="card-title"><%=limitTextLength(element.task_name, 30)%></h5>
                                     <p class="card-text"><%=limitTextLength(element.task_desc, 250)%></p>
@@ -152,23 +152,25 @@
             aria-labelledby="staticBackdropLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content p-3">
-                    <form action="post">
+                    <form action="/update" method="POST">
+                        <input type="text" id="modalTaskID" name = "task_id" hidden>
+                     
                         <div class="form-floating mb-3">
-                            <input type="text" class="form-control" placeholder="Title" id="modalTitle">
+                            <input type="text" class="form-control" placeholder="Title" id="modalTitle" name ="task_name">
                             <label for="floatingInput">Title</label>
                         </div>
                         <div class="form-floating mb-3">
                             <textarea class="form-control" placeholder="Details" style="height: 300px"
-                                id="modalDesc"></textarea>
+                                id="modalDesc" name ="task_desc"></textarea>
                             <label for="floatingTextarea2">Details</label>
                         </div>
 
                         <div class="form-floating mb-3">
-                            <input type="date" class="form-control" placeholder="Due Date" id="modalDate">
+                            <input type="date" class="form-control" placeholder="Due Date" id="modalDate" name="task_duedate">
                             <label for="floatingInput">Due Date</label>
                         </div>
                         <h7>Category</h7>
-                        <select class="form-select mb-3" aria-label="Default select example" id="modalCat">
+                        <select class="form-select mb-3" aria-label="Default select example" id="modalCat" name ="task_cat">
                             <%let elementIndex = 1%>
                             <% user_categories.forEach ((element) =>{  %>
                             <option value="<%=elementIndex++%>" ><%=element.category_name%></option>
@@ -177,23 +179,23 @@
 
                         <h7>Priority Level</h7><br>
                         <div class="btn-group mb-3" role="group" aria-label="Basic radio toggle button group">
-                            <input type="radio" class="btn-check" name="btnradio" id="btnradio0" autocomplete="off">
+                            <input type="radio" class="btn-check" name="task_star" value="0" id="btnradio0" autocomplete="off">
                             <label class="btn btn-outline-primary ps-4 pe-4" for="btnradio0"><img
                                     src="<%=getStarUrl(0)%>" alt="not_starred"></label>
 
-                            <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off">
+                            <input type="radio" class="btn-check" name="task_star" value="1" id="btnradio1" autocomplete="off">
                             <label class="btn btn-outline-primary ps-4 pe-4" for="btnradio1"><img
                                     src="<%=getStarUrl(1)%>" alt="star-half"></label>
 
-                            <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off">
+                            <input type="radio" class="btn-check" name="task_star" value="2" id="btnradio2" autocomplete="off">
                             <label class="btn btn-outline-primary ps-4 pe-4" for="btnradio2"><img
                                     src="<%=getStarUrl(2)%>" alt="star-fill"></label>
                         </div>
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-danger">Delete</button>
+                            <a href="" class="btn btn-danger" id="delete_button">Delete</a>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                             <button type="submit" class="btn btn-primary">Update</button>
-                            <button type="button" class="btn btn-success" >Complete</button>
+                            <a href="" class="btn btn-success" id="complete_button">Complete</a>
                         </div>
 
                     </form>

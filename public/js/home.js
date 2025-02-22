@@ -1,48 +1,37 @@
 
-console.log('I am here');
 document.addEventListener('DOMContentLoaded', () => {
-    //const editModal = document.getElementById('editModal');
-    //const editForm = document.getElementById('editForm');
 
+    //Select all task cards marked with data-bs-toggle="modal";
     const modalLinks = document.querySelectorAll('a[data-bs-toggle="modal"]');
 
     modalLinks.forEach(link => {
         link.addEventListener('click', (event) => {
-          // Get the task info from the clicked link
+          // Extraxt task-specific information from the clicked card attributes.
           const task_id = event.currentTarget.getAttribute('data-taskID');
           const task_name = event.currentTarget.getAttribute('data-task_name');
           const task_desc = event.currentTarget.getAttribute('data-task_desc');
           const task_dueDate = event.currentTarget.getAttribute('data-dueDate');
           const task_cat = event.currentTarget.getAttribute('data-cat');
           const task_star = event.currentTarget.getAttribute('data-star');
+          const task_status_id = event.currentTarget.getAttribute('data-task_status_id');
           
-
-          console.log(task_star)
+          
+          // Populate modal with task specific attributes 
+          document.getElementById('modalTaskID').value = task_id;
           document.getElementById('modalTitle').value = task_name;
           document.getElementById('modalDesc').value = task_desc;
           document.getElementById('modalDate').value = formatDateforHTML(new Date(task_dueDate));
           document.getElementById('modalCat').value = task_cat;
           document.getElementById('btnradio'+task_star).checked = true;
+          document.getElementById('delete_button').setAttribute('href', `/delete/${task_id}`);
+          document.getElementById('complete_button').setAttribute('href', `/complete/${task_id}`);
+          if(task_status_id == 1) {
+            document.getElementById('delete_button').classList.add("disabled");
 
-          
-          
+          }  
 
-    
-  
-          // Example: Updating modal content based on the task ID
-          //const modalTitle = document.querySelector('#staticBackdrop .modal-title');
-          //const modalBody = document.querySelector('#staticBackdrop .modal-body');
-         // modalTitle.textContent = `Task Details: ${taskId}`;
-         // modalBody.textContent = `Loading details for task ID ${taskId}...`;
-  
-          // Fetch task-specific data from the server or database
-          // Example: fetch(`/api/tasks/${taskId}`).then(response => ...)
         });
       });
-
-
-
-
 });
 
 function formatDateforHTML(date) {
