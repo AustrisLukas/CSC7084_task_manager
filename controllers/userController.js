@@ -162,3 +162,50 @@ exports.logout = (req,res) =>{
     req.session.destroy();
     res.redirect('/');
 }
+
+exports.updateTask = async (req, res) =>{
+    logMessage('Executing updateTask');
+
+    const endpoint_updateTask = process.env.API_ENDPOINT + `/update`;
+
+    try{
+        const response = await axios.put(endpoint_updateTask, req.body);
+        logMessage(response.data.message);
+        return res.redirect('/');
+    } catch (err){
+        logMessage(err.response.data.message);
+        return res.redirect('/');
+    }
+
+}
+
+exports.deleteTask = async (req, res) =>{
+    logMessage(`Executing deleteTask for task_id ${req.params.id}`);
+    
+    const endpoint_deleteTask = process.env.API_ENDPOINT + `/delete/${req.params.id}`;
+    try{
+        const response = await axios.delete(endpoint_deleteTask);
+        logMessage(response.data.message);
+        return res.redirect('/');
+    }catch (err) {
+        logMessage(err.response.data.message);
+        return res.redirect('/');
+    }
+}
+
+exports.completeTask = async (req, res) =>{
+    logMessage(`Executing completeTask for task_id ${req.params.id}`);
+
+    const endpoint_completeTask = process.env.API_ENDPOINT + `/complete/${req.params.id}`; 
+
+    try {
+        response = await axios.patch(endpoint_completeTask);
+        logMessage(response.data.message);
+        return res.redirect('/');
+
+    } catch (err) {
+        logMessage(err.response.data.message);
+        return res.redirect('/');
+    }
+
+}
