@@ -69,3 +69,5 @@ exports.processRegister = async (req, res) => {
     console.log(`Error registering new user: ${err}`);
   }
 };
+
+

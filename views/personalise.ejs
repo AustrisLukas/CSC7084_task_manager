@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en" style="max-width: 1700px; margin: 0 auto;">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>New Task | TaskSync</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+    <link href="/../css/custom.css" rel="stylesheet">
+    <link rel="stylesheet" href="/../css/newTask.css">
+
+</head>
+
+<body>
+    <header>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary pt-0 pr-2 mt-0">
+            <div class="container-fluid pt-2">
+                <!-- TaskSync logo -->
+                <a class="navbar-brand" href="#">
+                    <img src="/images/TaskSyncLogo.png" alt="TaskSync brand logo" height="30px">
+                </a>
+
+                <!-- Mobile View Toggler-->
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent"
+                    aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Navbar Content -->
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                    <!-- Left-item -->
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item ms-4">
+                            <a class="nav-link" href="/">mySync</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/new">New Task</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/statistics">Statistics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" aria-current="page" href="#">Personalise</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">About</a>
+                        </li>
+                    </ul>
+
+                    <!-- Right-items -->
+                    <div class="dropdown ms-auto">
+                        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton"
+                            data-bs-toggle="dropdown" aria-expanded="false">
+                            Profile
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                            <li><a class="dropdown-item" href="#">Details</a></li>
+                            <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <main>
+        <div class="row row-cols-2">
+            <!--ASIDE STATISTICS - LEFT 2-COLS -->
+            <div class="col-2">
+                STATS
+            </div>
+            <!--MAIN CONTENT RIGHT 10-COLS-->
+
+            <div class="col-6 mt-1">
+                <div class="col-8">
+                    <% if (error) { %>
+                    <div class="alert alert-danger alert-dismissible fade show m-0 p-1" role="alert">
+                        <%= error %>
+                        <button type="button" class="btn-close pt-0" data-bs-dismiss="alert"
+                            style="transform: scale(0.8)" aria-label="Close"></button>
+                    </div>
+                    <% } %>
+                </div>
+                <div class="col-8">
+                    <% if (success) { %>
+                    <div class="alert alert-success alert-dismissible fade show m-0 p-1" role="alert">
+                        <%= success %>
+                        <button type="button" class="btn-close pt-0" data-bs-dismiss="alert"
+                            style="transform: scale(0.8)" aria-label="Close"></button>
+                    </div>
+                    <% } %>
+                </div>
+                <form action="/updateCategories" method="POST">
+                    <div class="row mt-3">
+                        <div class="col-3"><label for="cat_name" class="form-label">
+                                <h5>Category Name</h5>
+                            </label></div>
+                        <div class="col-3"><label for="cat_colour" class="form-label">
+                                <h5>Category Colour</h5>
+                            </label></div>
+                    </div>
+                    <% //console.log(elements) %>
+                    <% elements.forEach((element) => { %>
+                    <div class="row">
+                        <div class="col-3 mb-2">
+                            <input type="hidden" name="task_category_id" value="<%=element.task_category_id%>">
+                            <input type="text" class="form-control" name="category_name"
+                                value="<%=element.category_name%>" required>
+                        </div>
+                        <div class="col-3 mb-2">
+                            <select class="form-select" name="colour_id">
+                                <% availableColours.forEach((elementInner) => { %>
+                                <% //console.log(elementInner) %>
+                                <% let selectedOption = '' %>
+                                <% if (element.colour_id === elementInner.colour_id) selectedOption = 'selected'; %>
+                                <option <%=selectedOption%> value="<%=elementInner.colour_id%>">
+                                    <%=elementInner.colour_name%></option>
+                                <% }); %>
+                            </select>
+                        </div>
+                    </div>
+
+                    <%}); %>
+                    <div class="row m-2">
+                        <div class="col-6 d-flex justify-content-end">
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-6 d-flex justify-content-end">
+                        <!-- Button trigger modal -->
+                        <!-- Disable button if 5 or more cateogries already defined.  -->
+                         <%let allowNewCategories = ' '%>
+                         <% if(elements.length >= 5){ allowNewCategories='disabled'} %>
+                        <button type="button" <%=allowNewCategories%> class="btn btn-success" data-bs-toggle="modal"
+                            data-bs-target="#exampleModal">
+                            + New Category
+                        </button>
+
+                        <!-- Modal -->
+                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                            aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Add new category</h1>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="col-12">
+                                            <form action="/addnewcategory" method="POST">
+                                                <div class="row col-6 mb-2">
+                                                    <label for="category_name">Category Name: </label>
+                                                    <input type="text" class="form-control" name="category_name">
+                                                </div>
+                                                <div class="row col-6 ">
+                                                    <label for="colour_id">Category Colour: </label>
+                                                    <select class="form-select" name="colour_id">
+                                                        <% availableColours.forEach((element) => { %>
+                                                        <option value="<%=element.colour_id%>">
+                                                            <%=element.colour_name%></option>
+                                                        <% }); %>
+                                                    </select>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary"
+                                                        data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save changes</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </main>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous">
+    </script>
+</body>
+
+</html>
