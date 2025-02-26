@@ -207,5 +207,93 @@ exports.completeTask = async (req, res) =>{
         logMessage(err.response.data.message);
         return res.redirect('/');
     }
+}
 
+
+exports.renderPersonalise = async (req, res)  =>{
+    logMessage('Executing renderPersonalise');
+
+    const {user_id} = req.session.user
+    const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+    const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+
+    try {
+        const result = await axios.get(endpoint_userCategories);
+        const availableColours = await axios.get(endpoint_availableColours);
+
+        res.render('personalise', {
+            elements: result.data,
+            availableColours: availableColours.data,
+            error: '',
+            success: '',
+        });
+
+    } catch (err){
+        console.log(err);
+    }
+}
+
+exports.updatePersonalise = async (req,res) => {
+    logMessage('Executing updatePersonalise');
+
+    const endpoint_updateCategories = process.env.API_ENDPOINT + `/updatecategories`;
+    const {user_id} = req.session.user
+    const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+    const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+    
+    try {
+        const response = await axios.patch(endpoint_updateCategories, req.body);
+        const userCategories = await axios.get(endpoint_userCategories);
+        const availableColours = await axios.get(endpoint_availableColours);
+
+        return res.render('personalise', {
+            elements: userCategories.data,
+            availableColours: availableColours.data,
+            error: '',
+            success: response.data.message,
+        });
+
+    } catch (err){
+        return res.render('personalise', {
+            elements: userCategories.data,
+            availableColours: availableColours.data,
+            error: response.err.message,
+            success: ''
+        });
+    }
+}
+
+exports.addNewCategory = async (req,res) => {
+
+    logMessage('Executing addNewCategory');
+    const endpoint_addNewCategory = process.env.API_ENDPOINT + `/addnewcategory`;
+    const {user_id} = req.session.user
+    const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+    const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+   // console.log(req.body);
+
+    try {
+        const response = await axios.post(endpoint_addNewCategory, {
+            ...req.body,
+            user_id: req.session.user.user_id
+        });
+
+        const userCategories = await axios.get(endpoint_userCategories);
+        const availableColours = await axios.get(endpoint_availableColours);
+        return res.render('personalise', {
+            elements: userCategories.data,
+            availableColours: availableColours.data,
+            error: '',
+            success: response.data.message,
+        });
+        
+    } catch (err) {
+        console.log(err);
+    }  
+}
+
+
+exports.renderStatistics = async (req, res)  =>{
+    logMessage('Executing renderStatistics');
+    res.render('statistics');
 }
