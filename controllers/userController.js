@@ -3,6 +3,7 @@ const { format, isAfter, differenceInCalendarDays } = require("date-fns");
 const { formatDisplayDate, limitTextLength, formatDate, formatDateforHTML, getStarUrl, getCardStyle, logMessage } = require("../utils/homeUtils");
 const { getCheckboxState } = require(path.join(__dirname, "/..", "/utils/filterSortUtils.js"));
 const axios = require("axios");
+const { createCategoryGraph } = require("../public/js/statsGraphs");
 
 /**
  * Renders the home page with user-specific tasks, categories and sort preferences.
@@ -29,10 +30,22 @@ exports.renderHome = async (req, res) => {
   const show_completed = req.session.views?.show_completed ?? "off";
   const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
   const endpoint_userTasks = process.env.API_ENDPOINT + `/user/tasks`;
+  const endpoint_tasksOpenCompleteSummary = process.env.API_ENDPOINT + `/stats/getopencompletesummary/${user_id}`;
+  const endpoint_tasksUrgencySummary = process.env.API_ENDPOINT + `/stats/geturgencysummary/${user_id}`;
+  const endpoint_tasksDueSummary = process.env.API_ENDPOINT + `/stats/getduesummary/${user_id}`;
+  
 
   // code bellow provides res.render with user selected categories from session.views.selected_category.
   // if no session.views.selected_category is not available, ALL user-defined categories will be rendered.
   try {
+
+    //SIDE STATS PANEL -> Open-complete summary
+    const taskOpenCompleteSummary = await axios.get(endpoint_tasksOpenCompleteSummary);
+    //SIDE STATS PANEL -> Urgency summary
+    const taskUrgencySummary = await axios.get(endpoint_tasksUrgencySummary);
+    //SIDE STATS PANEL -> taskDueSummary
+    const tasksDueSummary = await axios.get(endpoint_tasksDueSummary);
+
     const userCategories = await axios.get(endpoint_userCategories);
     // extract values from .json object
     const categoryArray = Object.values(userCategories.data);
@@ -61,6 +74,9 @@ exports.renderHome = async (req, res) => {
       formatDisplayDate,
       limitTextLength,
       formatDateforHTML,
+      taskOpenCompleteSummary: taskOpenCompleteSummary.data,
+      taskUrgencySummary: taskUrgencySummary.data,
+      tasksDueSummary: JSON.stringify(tasksDueSummary.data)
     });
   } catch (error) {
     console.error("Error fetching user categories:", error.message);
@@ -151,149 +167,176 @@ exports.processNewTask = async (req, res) => {
 
     req.body.message = response.data.message;
     return this.renderNewTask(req, res);
-    
   } catch (err) {
-    req.body.warning = err.response.data.message
+    req.body.warning = err.response.data.message;
     return this.renderNewTask(req, res);
   }
 };
 
-exports.logout = (req,res) =>{
-    req.session.destroy();
-    res.redirect('/');
-}
+exports.logout = (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+};
 
-exports.updateTask = async (req, res) =>{
-    logMessage('Executing updateTask');
+exports.updateTask = async (req, res) => {
+  logMessage("Executing updateTask");
 
-    const endpoint_updateTask = process.env.API_ENDPOINT + `/update`;
+  const endpoint_updateTask = process.env.API_ENDPOINT + `/update`;
 
-    try{
-        const response = await axios.put(endpoint_updateTask, req.body);
-        logMessage(response.data.message);
-        return res.redirect('/');
-    } catch (err){
-        logMessage(err.response.data.message);
-        return res.redirect('/');
-    }
+  try {
+    const response = await axios.put(endpoint_updateTask, req.body);
+    logMessage(response.data.message);
+    return res.redirect("/");
+  } catch (err) {
+    logMessage(err.response.data.message);
+    return res.redirect("/");
+  }
+};
 
-}
+exports.deleteTask = async (req, res) => {
+  logMessage(`Executing deleteTask for task_id ${req.params.id}`);
 
-exports.deleteTask = async (req, res) =>{
-    logMessage(`Executing deleteTask for task_id ${req.params.id}`);
-    
-    const endpoint_deleteTask = process.env.API_ENDPOINT + `/delete/${req.params.id}`;
-    try{
-        const response = await axios.delete(endpoint_deleteTask);
-        logMessage(response.data.message);
-        return res.redirect('/');
-    }catch (err) {
-        logMessage(err.response.data.message);
-        return res.redirect('/');
-    }
-}
+  const endpoint_deleteTask = process.env.API_ENDPOINT + `/delete/${req.params.id}`;
+  try {
+    const response = await axios.delete(endpoint_deleteTask);
+    logMessage(response.data.message);
+    return res.redirect("/");
+  } catch (err) {
+    logMessage(err.response.data.message);
+    return res.redirect("/");
+  }
+};
 
-exports.completeTask = async (req, res) =>{
-    logMessage(`Executing completeTask for task_id ${req.params.id}`);
+exports.completeTask = async (req, res) => {
+  logMessage(`Executing completeTask for task_id ${req.params.id}`);
 
-    const endpoint_completeTask = process.env.API_ENDPOINT + `/complete/${req.params.id}`; 
+  const endpoint_completeTask = process.env.API_ENDPOINT + `/complete/${req.params.id}`;
 
-    try {
-        response = await axios.patch(endpoint_completeTask);
-        logMessage(response.data.message);
-        return res.redirect('/');
+  try {
+    response = await axios.patch(endpoint_completeTask);
+    logMessage(response.data.message);
+    return res.redirect("/");
+  } catch (err) {
+    logMessage(err.response.data.message);
+    return res.redirect("/");
+  }
+};
 
-    } catch (err) {
-        logMessage(err.response.data.message);
-        return res.redirect('/');
-    }
-}
+exports.renderPersonalise = async (req, res) => {
+  logMessage("Executing renderPersonalise");
+
+  const { user_id } = req.session.user;
+  const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+  const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+
+  try {
+    const result = await axios.get(endpoint_userCategories);
+    const availableColours = await axios.get(endpoint_availableColours);
+
+    res.render("personalise", {
+      elements: result.data,
+      availableColours: availableColours.data,
+      error: "",
+      success: "",
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.updatePersonalise = async (req, res) => {
+  logMessage("Executing updatePersonalise");
+
+  const endpoint_updateCategories = process.env.API_ENDPOINT + `/updatecategories`;
+  const { user_id } = req.session.user;
+  const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+  const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+
+  try {
+    const response = await axios.patch(endpoint_updateCategories, req.body);
+    const userCategories = await axios.get(endpoint_userCategories);
+    const availableColours = await axios.get(endpoint_availableColours);
+
+    return res.render("personalise", {
+      elements: userCategories.data,
+      availableColours: availableColours.data,
+      error: "",
+      success: response.data.message,
+    });
+  } catch (err) {
+    return res.render("personalise", {
+      elements: userCategories.data,
+      availableColours: availableColours.data,
+      error: response.err.message,
+      success: "",
+    });
+  }
+};
+
+exports.addNewCategory = async (req, res) => {
+  logMessage("Executing addNewCategory");
+  const endpoint_addNewCategory = process.env.API_ENDPOINT + `/addnewcategory`;
+  const { user_id } = req.session.user;
+  const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
+  const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+  // console.log(req.body);
+
+  try {
+    const response = await axios.post(endpoint_addNewCategory, {
+      ...req.body,
+      user_id: req.session.user.user_id,
+    });
+
+    const userCategories = await axios.get(endpoint_userCategories);
+    const availableColours = await axios.get(endpoint_availableColours);
+    return res.render("personalise", {
+      elements: userCategories.data,
+      availableColours: availableColours.data,
+      error: "",
+      success: response.data.message,
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};
+
+exports.renderStatistics = async (req, res) => {
+  logMessage("Executing renderStatistics");
+
+  const id = req.session.user.user_id;
+  const endpoint_tasksPerCategory = process.env.API_ENDPOINT + `/stats/taskspercategory/${id}`;
+  const endpoint_tasksDueSummary = process.env.API_ENDPOINT + `/stats/getduesummary/${id}`;
+  const endpoint_tasksOpenCompleteSummary = process.env.API_ENDPOINT + `/stats/getopencompletesummary/${id}`;
+  const endpoint_tasksUrgencySummary = process.env.API_ENDPOINT + `/stats/geturgencysummary/${id}`;
 
 
-exports.renderPersonalise = async (req, res)  =>{
-    logMessage('Executing renderPersonalise');
+  try {
+    //tasksPerCategory data
+    const tasksPerCategory = await axios.get(endpoint_tasksPerCategory);
+    const categoriesXaxis = tasksPerCategory.data.map((element) => element.category_name);
+    const categoriesYaxis = tasksPerCategory.data.map((element) => element.count);
+    const chartDataTaskPerCategory = {
+      labels: categoriesXaxis,
+      values: categoriesYaxis,
+    };
 
-    const {user_id} = req.session.user
-    const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
-    const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
+    //taskDueSummary
+    const tasksDueSummary = await axios.get(endpoint_tasksDueSummary);
+    //Open-complete summary
+    const taskOpenCompleteSummary = await axios.get(endpoint_tasksOpenCompleteSummary);
+    //Urgency summary
+    const taskUrgencySummary = await axios.get(endpoint_tasksUrgencySummary);
 
-    try {
-        const result = await axios.get(endpoint_userCategories);
-        const availableColours = await axios.get(endpoint_availableColours);
-
-        res.render('personalise', {
-            elements: result.data,
-            availableColours: availableColours.data,
-            error: '',
-            success: '',
-        });
-
-    } catch (err){
-        console.log(err);
-    }
-}
-
-exports.updatePersonalise = async (req,res) => {
-    logMessage('Executing updatePersonalise');
-
-    const endpoint_updateCategories = process.env.API_ENDPOINT + `/updatecategories`;
-    const {user_id} = req.session.user
-    const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
-    const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
-    
-    try {
-        const response = await axios.patch(endpoint_updateCategories, req.body);
-        const userCategories = await axios.get(endpoint_userCategories);
-        const availableColours = await axios.get(endpoint_availableColours);
-
-        return res.render('personalise', {
-            elements: userCategories.data,
-            availableColours: availableColours.data,
-            error: '',
-            success: response.data.message,
-        });
-
-    } catch (err){
-        return res.render('personalise', {
-            elements: userCategories.data,
-            availableColours: availableColours.data,
-            error: response.err.message,
-            success: ''
-        });
-    }
-}
-
-exports.addNewCategory = async (req,res) => {
-
-    logMessage('Executing addNewCategory');
-    const endpoint_addNewCategory = process.env.API_ENDPOINT + `/addnewcategory`;
-    const {user_id} = req.session.user
-    const endpoint_userCategories = process.env.API_ENDPOINT + `/user/categories/${user_id}`;
-    const endpoint_availableColours = process.env.API_ENDPOINT + `/getcolours`;
-   // console.log(req.body);
-
-    try {
-        const response = await axios.post(endpoint_addNewCategory, {
-            ...req.body,
-            user_id: req.session.user.user_id
-        });
-
-        const userCategories = await axios.get(endpoint_userCategories);
-        const availableColours = await axios.get(endpoint_availableColours);
-        return res.render('personalise', {
-            elements: userCategories.data,
-            availableColours: availableColours.data,
-            error: '',
-            success: response.data.message,
-        });
-        
-    } catch (err) {
-        console.log(err);
-    }  
-}
-
-
-exports.renderStatistics = async (req, res)  =>{
-    logMessage('Executing renderStatistics');
-    res.render('statistics');
-}
+    res.render("statistics", {
+      getStarUrl,
+      chartData: JSON.stringify(chartDataTaskPerCategory),
+      tasksDueSummary: JSON.stringify(tasksDueSummary.data),
+      taskOpenCompleteSummary: taskOpenCompleteSummary.data,
+      taskUrgencySummary: taskUrgencySummary.data,
+      
+      
+    });
+  } catch (err) {
+    console.log(err);
+  }
+};

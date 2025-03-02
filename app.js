@@ -9,6 +9,7 @@ const { format } = require('date-fns');
 const { logMessage } = require('./utils/homeUtils.js');
 const axios = require("axios");
 
+
 //const cookieParser = require("cookie-parser");
 //const session = require("express-session");
 //const authRouter = require("./routes/auth");
@@ -21,6 +22,7 @@ app.use(express.urlencoded({ extended: true }));
 //app.use(cookieParser());
 //app.use(morgan('tiny'));
 app.use(express.static(path.join(__dirname, '/public')));
+
 app.use(
     session({
         name: "SESSIONID",
