@@ -3,7 +3,7 @@ const { format, isAfter, differenceInCalendarDays } = require("date-fns");
 const { formatDisplayDate, limitTextLength, formatDate, formatDateforHTML, getStarUrl, getCardStyle, logMessage } = require("../utils/homeUtils");
 const { getCheckboxState } = require(path.join(__dirname, "/..", "/utils/filterSortUtils.js"));
 const axios = require("axios");
-const { createCategoryGraph } = require("../public/js/statsGraphs");
+
 
 /**
  * Renders the home page with user-specific tasks, categories and sort preferences.
@@ -174,6 +174,7 @@ exports.processNewTask = async (req, res) => {
 };
 
 exports.logout = (req, res) => {
+  logMessage(`Executing logout for user_id =  ${req.session.user.user_id}`);
   req.session.destroy();
   res.redirect("/");
 };
