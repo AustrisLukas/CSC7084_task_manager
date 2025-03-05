@@ -102,7 +102,7 @@ function validatePassword(form){
     if (!passwordRegex.test(password1.value)) {
         password1.classList.remove("is-valid");
         password1.classList.add("is-invalid");
-        password1feedback.innerHTML ="Password complexity requirement not met - must contain at least:<br>one lowercase,<br>one uppercase,<br>one digit,<br>one special character."
+        password1feedback.innerHTML ="Password complexity requirement not met - must contain at least:<br>at least 8 characters,<br>one lowercase,<br>one uppercase,<br>one digit,<br>one special character."
         isValid = false;
     } else {
         password1.classList.remove("is-invalid");
