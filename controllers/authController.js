@@ -64,7 +64,6 @@ exports.processRegister = async (req, res) => {
   const endpoint_processRegister = process.env.API_ENDPOINT + "/register";
 
   try {
-    console.log("No errors <------")
     const result = await axios.post(endpoint_processRegister, req.body);
     
     if (result.status === 200) {
