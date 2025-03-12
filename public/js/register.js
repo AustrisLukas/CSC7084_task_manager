@@ -1,7 +1,4 @@
-console.log("in reg");
 import {nameValidation, emailValidation, validatePassword, hasAcceptedTerms} from '/js/inputValidation.js';
-
-
 
 // Disabling form submissions if there are invalid fields
 (() => {

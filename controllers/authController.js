@@ -4,11 +4,25 @@ const dotenv = require("dotenv").config({ path: "./config.env" });
 const { logMessage } = require("../utils/homeUtils");
 
 
+/**
+ * Renders the login page for the user.
+ * 
+ * This function renders the "login" view, providing an empty error message to the template. 
+ * It's used to display the login form when the user is not authenticated or is redirected to log in.
+ */
 exports.renderLogin = (req, res) => {
   logMessage("Executing renderLogin");
   return res.render("login", {error: ""});
 };
 
+/**
+ * Processes the user's login by sending credentials to the backend and managing session data.
+ * 
+ * This function performs the following actions:
+ * - Sends a POST request with the user's login credentials to the backend `/login` endpoint.
+ * - If the login is successful, it stores the received token and user data in the session.
+ * - If the login fails, it handles different error statuses (400, 401, 404) and displays an appropriate error message on the login page.
+ */
 exports.processLogin = async (req, res) => {
 
   logMessage("Executing processLogin");
@@ -27,16 +41,28 @@ exports.processLogin = async (req, res) => {
     if (err.response.status === 401) return res.render("login", {error: `${err.response.data.error}`});
     if (err.response.status === 404) return res.render("login", {error: `${err.response.data.error}`});
     else console.log(err);
-
   }
 };
 
+/**
+ * Logs the user out by destroying the session and redirecting to the home page.
+ * 
+ * This function performs the following actions:
+ * - Logs the user out by destroying the session data (removes user and token).
+ * - Redirects the user to the home page after logout.
+ */
 exports.processLogout = (req, res) => {
   logMessage(`Executing logout for user_id =  ${req.session.user.user_id}`);
   req.session.destroy();
   res.redirect("/");
 };
 
+/**
+ * Renders the registration page for the user.
+ * 
+ * This function renders the "register" view, providing an empty error message to the template. 
+ * It's typically used to display the registration form for new users.
+ */
 exports.renderRegister = (req, res) => {
   logMessage("Executing renderRegister");
   res.render("register", {error: ""});
@@ -45,19 +71,7 @@ exports.renderRegister = (req, res) => {
 /**
  * Processes user registration by validating input, checking for existing users,
  * and inserting user details and account information into the database.
- *
- * @async
- * @function processRegister
- * @param {Object} req - The HTTP request object.
- * @param {Object} req.body - The body of the HTTP request.
- * @param {string} req.body.name - The user's name.
- * @param {string} req.body.user_email - The user's email address.
- * @param {string} req.body.password2 - The user's password.
- * @param {Object} res - The HTTP response object.
- *
- * @throws {Error} - If there is an issue querying the database or during transaction operations.
  */
-
 exports.processRegister = async (req, res) => {
 
   logMessage("Executing processRegister.");
@@ -71,10 +85,13 @@ exports.processRegister = async (req, res) => {
       return res.redirect("/auth/login");
     } else {
       logMessage("error");
-      return res.send(result.data.message);
+      return res.render('register',({error: result.data.message}));
+      //return res.send(result.data.message);
     }
   } catch (err) {
-    if (err.response.status === 400) return res.render('register', ({error: err.response.data.errorMessages}))
+    //400 - validation errors from back end.
+    if (err.response.status === 400) return res.render('register', ({error: err.response.data.errorMessages}));
+    // 409 - user already registered. 
     if (err.response.status === 409) return res.render('register',{error: `${err.response.data.error}`})
     console.log(`Error registering new user: ${err}`);
   }

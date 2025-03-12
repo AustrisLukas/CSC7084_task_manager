@@ -2,8 +2,6 @@ const { format, differenceInCalendarDays } = require("date-fns");
 
 /**
  * Function utilises date-FNS module to format date object to String with DD/MMM/YYYY format.
- * @param {*} dueDate - input date
- * @returns formated String date DD/MMM/YYYY
  */
 function formatDisplayDate(dueDate){
 
@@ -18,9 +16,6 @@ function formatDisplayDate(dueDate){
 
 /**
  * Checks text lenght and truncates if character limit is exceeded and concatinates '...' to the end. Otherwise returns original text
- * @param {*} text input text to be checked for length
- * @param {*} charLimit character limit
- * @returns String of truncated text or original text
  */
 function limitTextLength(text, charLimit){
 
@@ -29,8 +24,6 @@ function limitTextLength(text, charLimit){
 
 /**
  * Function returns appropriate star image url based on task priority level
- * @param {*} priority prioirty level
- * @returns approriate star image url
  */
 function getStarUrl(priority) {
 
@@ -55,8 +48,6 @@ function getStarUrl(priority) {
 
 /**
  * Function utilises date-FNS module to calculate difference in days between now and due date, then picks appropriate card style
- * @param {*} dueDate due date of task from which time will be calculated.
- * @returns card style String
  */
 function getCardStyle(dueDate, taskStatus){
 
@@ -75,12 +66,24 @@ function getCardStyle(dueDate, taskStatus){
 }
 
 function logMessage(message){
-
     const timestamp = format(new Date(), "HH:mm:ss");
     console.log(`${timestamp} App: ${message}`)
 }
 
+/*
+* Function to check if givent category (current_cat) is contained in checked_categories array. This function is exclusively
+* used for setting checkbox state when rendering a view. 
+* TRUE - return String 'checked'
+* FALSE - return String ''
+*/
+function getCheckboxState(checked_categories, current_cat){
+    
+    if (checked_categories.includes(current_cat)){
+        return 'checked';
+    } else {
+        return '';
+    }
+}
 
-
-module.exports = {getStarUrl, getCardStyle, formatDisplayDate, limitTextLength, logMessage};
+module.exports = {getStarUrl, getCardStyle, formatDisplayDate, limitTextLength, logMessage, getCheckboxState};
 

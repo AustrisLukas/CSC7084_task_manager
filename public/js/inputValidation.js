@@ -1,15 +1,11 @@
 /**
  * Validates a name input field in a form using a regex pattern.
  * Applies Bootstrap's `is-valid` and `is-invalid` classes to indicate validation state.
- *
- * @param {HTMLFormElement} form - The form element containing the name input field to validate.
- * @returns {boolean} - Returns `true` if the name is valid; otherwise, `false`.
- *
- * Validation Rules:
+ *  Rules:
  * - Name must be between 2 and 20 characters long.
  * - Only alphabetic characters (uppercase and lowercase) are allowed.
  *
- * Visual Feedback:
+ *  Feedback:
  * - Adds `is-invalid` class if the name is invalid.
  * - Adds `is-valid` class for successful validation.
  */
@@ -35,17 +31,13 @@ function nameValidation(form){
 /**
  * Validates an email input field in a form using a regex.
  * Applies Bootstrap's `is-valid` and `is-invalid` classes to indicate validation state.
- *
- * @param {HTMLFormElement} form - The form element containing the email input field to validate.
- * @returns {boolean} - Returns `true` if the email is valid; otherwise, `false`.
- *
- * Validation Rules:
+ *  Rules:
  * - Email must follow the format: `username@domain.tld`
  *   - `username` may contain alphanumeric characters, dots (.), underscores (_), percent (%), plus (+), and hyphens (-).
  *   - `domain` must be a valid hostname.
  *   - `tld` (top-level domain) must be at least two alphabetic characters.
  *
- * Visual Feedback:
+ *  Feedback:
  * - Adds `is-invalid` class if the email is invalid.
  * - Adds `is-valid` class for successful validation.
  */
@@ -70,10 +62,6 @@ function emailValidation(form){
 /**
  * Validates password fields in a form based on complexity requirements and ensures passwords match.
  * Applies Bootstrap's `is-valid` and `is-invalid` classes to indicate validation state.
- *
- * @param {HTMLFormElement} form - The form element containing the password fields to validate.
- * @returns {boolean} - Returns `true` if both passwords meet the requirements and match; otherwise, `false`.
- *
  * Validation Rules:
  * - Password must be at least 8 characters long.
  * - Password must include:
@@ -123,6 +111,7 @@ function validatePassword(form){
     return isValid;
 }
 
+//Check if user accepted user terms
 function hasAcceptedTerms(form){
 
     let accepted = true;
@@ -137,8 +126,6 @@ function hasAcceptedTerms(form){
         checkbox.classList.add('is-valid');
     }
     return accepted;
-
-
 }
 
 export {nameValidation, emailValidation, validatePassword, hasAcceptedTerms};

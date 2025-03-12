@@ -33,7 +33,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left-item -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item ms-4">
+                        <li class="nav-item">
                             <a class="nav-link"  href="/">mySync</a>
                         </li>
                         <li class="nav-item">
@@ -58,7 +58,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                             <li><a class="dropdown-item" href="#">Details</a></li>
-                            <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                         </ul>
                     </div>
                 </div>
@@ -66,14 +66,10 @@
         </nav>
     </header>
     <main>
-        <div class="row row-cols-2">
-            <!--ASIDE STATISTICS - LEFT 2-COLS -->
-            <div class="col-2">
-                
-            </div>
-            <!--MAIN CONTENT RIGHT 10-COLS-->
-            <div class="col-10 mt-1">
-                <div class="col-5 mt-3 ">
+        <div class="row row-cols-1 m-2">
+            <!--MAIN CONTENT RIGHT 12-COLS-->
+            <div class="col-12 mt-1">
+                <div class="col-12 col-md-9 col-lg-9 mt-3 ">
                     <h4 class="mb-4">Create new task</h4>
                     <% if (message) { %>
                         <div class="alert alert-success alert-dismissible fade show mb-3 p-1" role="alert">
@@ -107,7 +103,7 @@
                         <select class="form-select" aria-label="Default select example" name="task_cat_id">
                             <%let elementIndex = 1%>
                             <% user_categories.forEach ((element) =>{  %>
-                            <option value="<%=elementIndex++%>"><%=element.category_name%></option>
+                            <option value="<%=element.task_category_id%>"><%=element.category_name%></option>
                             <% }); %>
                         </select>
                         <hr>

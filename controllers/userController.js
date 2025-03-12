@@ -1,7 +1,7 @@
 const path = require("path");
 const { format, isAfter, differenceInCalendarDays } = require("date-fns");
-const { formatDisplayDate, limitTextLength, formatDate, formatDateforHTML, getStarUrl, getCardStyle, logMessage } = require("../utils/homeUtils");
-const { getCheckboxState } = require(path.join(__dirname, "/..", "/utils/filterSortUtils.js"));
+const { formatDisplayDate, limitTextLength, formatDate, formatDateforHTML, getStarUrl, getCardStyle, getCheckboxState, logMessage } = require("../utils/homeUtils");
+//const { getCheckboxState } = require(path.join(__dirname, "/..", "/utils/filterSortUtils.js"));
 const axios = require("axios");
 
 
@@ -9,22 +9,11 @@ const axios = require("axios");
  * Renders the home page with user-specific tasks, categories and sort preferences.
  * If category and sort preferance not available - page rendered with default settings.
  * Redirects to the login page if the user is not authenticated.
- *
- * @param {Object} req - Express request object.
- * @param {Object} req.session - User session data.
- * @param {Object} req.session.user - The logged-in user's session details.
- * @param {number} req.session.user.user_id - The ID of the logged-in user.
- * @param {Object} req.session.views - User's session-based UI preferences.
- * @param {string} [req.session.views.sort_by] - Sorting preference for tasks.
- * @param {string[]} [req.session.views.selected_category] - User-selected categories.
- * @param {string} [req.session.views.show_completed] - Whether to show completed tasks.
- * @param {Object} res - Express response object.
- *
- * @returns {void}
  */
 exports.renderHome = async (req, res) => {
   logMessage("Executing renderHome");
 
+  //API endpoints
   const { user_id } = req.session.user;
   const sort_by = req.session.views?.sort_by ?? undefined;
   const show_completed = req.session.views?.show_completed ?? "off";
@@ -38,19 +27,19 @@ exports.renderHome = async (req, res) => {
   // code bellow provides res.render with user selected categories from session.views.selected_category.
   // if no session.views.selected_category is not available, ALL user-defined categories will be rendered.
   try {
-
     //SIDE STATS PANEL -> Open-complete summary
     const taskOpenCompleteSummary = await axios.get(endpoint_tasksOpenCompleteSummary);
     //SIDE STATS PANEL -> Urgency summary
     const taskUrgencySummary = await axios.get(endpoint_tasksUrgencySummary);
     //SIDE STATS PANEL -> taskDueSummary
     const tasksDueSummary = await axios.get(endpoint_tasksDueSummary);
-
+    //user specific categories
     const userCategories = await axios.get(endpoint_userCategories);
     // extract values from .json object
     const categoryArray = Object.values(userCategories.data);
     // put values in a string array
     const selectAllCategories = categoryArray.map((item) => item.category_name);
+    //used for filtering - if category filters not found, 'show all categories' option will be sent to API
     const selected_category = req.session.views?.selected_category ?? selectAllCategories;
 
     // retrieve userTask with filter and sort options in req.body
@@ -86,16 +75,6 @@ exports.renderHome = async (req, res) => {
 /**
  * Applies user-selected filters (category, sorting, and completed tasks visibility)
  * and stores them in the session. Redirects to the home page after applying filters.
- *
- * @param {Object} req - Express request object.
- * @param {Object} req.body - Request body containing filter options.
- * @param {string[]} req.body.selected_category - Array of selected category names.
- * @param {string} req.body.sort_by - Sorting preference for tasks.
- * @param {string} req.body.show_completed - Whether to show completed tasks ("on" or "off").
- * @param {Object} req.session - User session object.
- * @param {Object} res - Express response object.
- *
- * @returns {void}
  */
 exports.applyFilters = async (req, res) => {
   logMessage("Executing applyFilters");
@@ -110,15 +89,6 @@ exports.applyFilters = async (req, res) => {
 
 /**
  * Renders the "newTask" page with user-specific categories.
- *
- * @async
- * @function renderNewTask
- * @param {Object} req - Express request object.
- * @param {Object} req.session - Session data.
- * @param {Object} req.session.user - User session object.
- * @param {number} req.session.user.user_id - ID of the logged-in user.
- * @param {Object} res - Express response object.
- * @returns {Promise<void>} Sends the rendered "newTask" page or an error response.
  */
 exports.renderNewTask = async (req, res) => {
   logMessage("Executing renderNewTask");
@@ -139,32 +109,34 @@ exports.renderNewTask = async (req, res) => {
 
 /**
  * Renders a 404 error page.
- *
- * @function renderError
- * @param {Object} req - Express request object.
- * @param {Object} res - Express response object.
- * @returns {void} Sends a 404 error response as HTML.
  */
 exports.renderError = (req, res) => {
   logMessage("Executing renderError");
-  //console.log(req)
 
-  return res.send(`<h1>Error 404</h1> \n <p>${req.url}</p> <p>Page not found</p>`);
+  return res.status(404).send(`<h1>Error 404</h1> \n <p>${req.url}</p> <p>Page not found</p>`);
 };
 
+/**
+ * Processes a new task submission by sending task data to the API.
+ * 
+ * - Logs the execution of the function.
+ * - Extracts task details from the request body.
+ * - Appends the user's ID from the session.
+ * - Sends a POST request to the API endpoint to create a new task.
+ * - Handles the API response, setting success or error messages accordingly.
+ * - Re-renders the new task page with feedback messages.
+ */
 exports.processNewTask = async (req, res) => {
   logMessage("Executing processNewTask");
   console.log(req.body);
   //console.log(req.session);
 
   const endpoint_processNewTask = process.env.API_ENDPOINT + `/newtask`;
-
   try {
     const response = await axios.post(endpoint_processNewTask, {
       ...req.body,
       user_id: req.session.user.user_id,
     });
-
     req.body.message = response.data.message;
     return this.renderNewTask(req, res);
   } catch (err) {
@@ -173,12 +145,15 @@ exports.processNewTask = async (req, res) => {
   }
 };
 
-exports.logout = (req, res) => {
-  logMessage(`Executing logout for user_id =  ${req.session.user.user_id}`);
-  req.session.destroy();
-  res.redirect("/");
-};
 
+/**
+ * Updates an existing task by sending a PUT request to the API.
+ * 
+ * - Logs the execution of the update process.
+ * - Sends the updated task data to the API.
+ * - Redirects to the home page after a successful update.
+ * - Handles errors by logging the response and redirecting.
+ */
 exports.updateTask = async (req, res) => {
   logMessage("Executing updateTask");
 
@@ -194,6 +169,14 @@ exports.updateTask = async (req, res) => {
   }
 };
 
+/**
+ * Deletes a task by sending a DELETE request to the API.
+ * 
+ * - Logs the deletion process with the task ID.
+ * - Sends a DELETE request to the API endpoint.
+ * - Redirects to the home page after a successful deletion.
+ * - Handles errors by logging the response and redirecting.
+ */
 exports.deleteTask = async (req, res) => {
   logMessage(`Executing deleteTask for task_id ${req.params.id}`);
 
@@ -208,6 +191,14 @@ exports.deleteTask = async (req, res) => {
   }
 };
 
+/**
+ * Marks a task as complete by sending a PATCH request to the API.
+ * 
+ * - Logs the completion process with the task ID.
+ * - Sends a PATCH request to update the task status.
+ * - Redirects to the home page upon successful completion.
+ * - Handles errors by logging the response and redirecting.
+ */
 exports.completeTask = async (req, res) => {
   logMessage(`Executing completeTask for task_id ${req.params.id}`);
 
@@ -223,6 +214,13 @@ exports.completeTask = async (req, res) => {
   }
 };
 
+/**
+ * Renders the "personalise" page with the user's categories and available colours.
+ * 
+ * This function performs the following actions:
+ * - Retrieves the user's categories and available colours from the backend.
+ * - Renders the "personalise" view with the fetched categories and colours, as well as any success or error messages.
+ */
 exports.renderPersonalise = async (req, res) => {
   logMessage("Executing renderPersonalise");
 
@@ -245,6 +243,14 @@ exports.renderPersonalise = async (req, res) => {
   }
 };
 
+/**
+ * Renders the "personalise" page with user-specific categories and available colors.
+ * 
+ * - Fetches user categories from the API using the user_id from the session.
+ * - Retrieves the list of available colors from the API.
+ * - Passes retrieved data to the template engine for rendering.
+ * - Logs execution and handles errors gracefully.
+ */
 exports.updatePersonalise = async (req, res) => {
   logMessage("Executing updatePersonalise");
 
@@ -274,6 +280,16 @@ exports.updatePersonalise = async (req, res) => {
   }
 };
 
+
+/**
+ * Adds a new category for the logged-in user and retrieves relevant data for rendering.
+ * 
+ * This function performs the following actions:
+ * - Sends a request to add a new category to the backend via the `addnewcategory` endpoint.
+ * - Retrieves the list of categories for the user from the `user/categories/{user_id}` endpoint.
+ * - Fetches the available colours for the user from the `getcolours` endpoint.
+ * - Renders the "personalise" view with the user's categories, available colours, and appropriate messages.
+ */
 exports.addNewCategory = async (req, res) => {
   logMessage("Executing addNewCategory");
   const endpoint_addNewCategory = process.env.API_ENDPOINT + `/addnewcategory`;
@@ -301,6 +317,15 @@ exports.addNewCategory = async (req, res) => {
   }
 };
 
+
+/**
+ * Retrieves and renders statistics for the logged-in user.
+ * 
+ * This function performs the following actions:
+ * - Fetches statistics related to tasks categorized by type, task due summaries, task open/complete summaries, and task urgency summaries.
+ * - Prepares the data for rendering as a chart for tasks per category.
+ * - Renders the "statistics" view with the fetched statistics and chart data for the user.
+ */
 exports.renderStatistics = async (req, res) => {
   logMessage("Executing renderStatistics");
 
@@ -309,7 +334,6 @@ exports.renderStatistics = async (req, res) => {
   const endpoint_tasksDueSummary = process.env.API_ENDPOINT + `/stats/getduesummary/${id}`;
   const endpoint_tasksOpenCompleteSummary = process.env.API_ENDPOINT + `/stats/getopencompletesummary/${id}`;
   const endpoint_tasksUrgencySummary = process.env.API_ENDPOINT + `/stats/geturgencysummary/${id}`;
-
 
   try {
     //tasksPerCategory data
@@ -334,8 +358,6 @@ exports.renderStatistics = async (req, res) => {
       tasksDueSummary: JSON.stringify(tasksDueSummary.data),
       taskOpenCompleteSummary: taskOpenCompleteSummary.data,
       taskUrgencySummary: taskUrgencySummary.data,
-      
-      
     });
   } catch (err) {
     console.log(err);

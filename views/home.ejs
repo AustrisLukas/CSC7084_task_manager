@@ -8,13 +8,14 @@
   <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
+  <link rel="stylesheet" href="/../css/home.css">
   <script src="/js/statsGraphs.js" defer></script>
-
   <link href="/../css/custom.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
 </head>
 
-<body>
+<body class="">
 
   <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary pt-0 pr-2 mt-0">
@@ -33,7 +34,7 @@
         <div class="collapse navbar-collapse" id="navbarSupportedContent">
           <!-- Left-item -->
           <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item ms-4">
+            <li class="nav-item">
               <a class="nav-link active" aria-current="page" href="#">mySync</a>
             </li>
             <li class="nav-item">
@@ -65,12 +66,12 @@
     </nav>
   </header>
 
-  <main>
+  <main class="me-3 ms-3">
     <div class="row row-cols-2">
       <!--ASIDE STATISTICS - LEFT 2-COLS -->
-      <div class="col-2">
+      <div class="col-2 d-none d-xl-block " >
         <!--STATS - 1st ROW -->
-        <div class="row pt-5 m-2">
+        <div class="row pt-5">
           <table class=" table table-hover table-striped">
             <tbody>
               <tr>
@@ -89,7 +90,7 @@
           </table>
         </div>
         <!--STATS - 2nd ROW -->
-        <div class="row m-2">
+        <div class="row">
           <table class=" table table-hover table-striped">
             <tbody>
               <tr>
@@ -108,7 +109,7 @@
           </table>
         </div>
         <!--STATS - 3rd ROW -->
-        <div class="row m-0 p-0">
+        <div class="row p-0">
             <canvas class="m-0 p-0" id="dueSummaryChart" width="50" height="50"></canvas>
             <script>
               const tasksDueSummary = <%- tasksDueSummary %>
@@ -124,11 +125,12 @@
         </div>
       </div>
       <!--MAIN CONTENT RIGHT 10-COLS-->
-      <div class="col-10 mt-1">
+      <div class="col-12 col-xl-10 ps-4">
         <!--FILTER / SORT  NAV-BAR-->
-        <div class="row border-bottom pb-2">
-          <form class="d-flex align-items-center" action="/applyfilters" method="POST">
-            <div class="col-5 me-2">
+        <div class="row border-bottom pt-1 pb-1">
+          <form class="d-flex flex-wrap align-items-center" action="/applyfilters" method="POST">
+            <!--CATEGORIES CHECK BOXES-->
+            <div class="col-sm-12 col-md-12 col-lg-6 d-flex flex-wrap me-2 ">
               <% user_categories.forEach((cat) =>{ %>
               <!-- Checkbox Option - Checked_categories passed in from req.body to place check boxes. In a GET request, checked_cateogries [] will be empty and all checkboxes will be checked. -->
               <% let checkedOption = 'checked'; %>
@@ -140,8 +142,9 @@
               </div>
               <% }); %>
             </div>
-            <div class="col-2 me-4">
-              <select class="form-select" name="sort_by" aria-label="Default select example">
+            <!-- Sort By Dropdown -->
+            <div class="col-md-3 col-lg-2 me-4">
+              <select class="form-select form-select-sm" name="sort_by" aria-label="Default select example">
                 <option selected disabled>Sort by</option>
                 <option value="1">Priority</option>
                 <option value="2">Due date - ascending</option>
@@ -150,7 +153,7 @@
                 <option value="5">Creation date - descending</option>
               </select>
             </div>
-            <div class="col-2 me-1">
+            <div class="col-md-3 col-lg-2 me-1">
               <div class="form-check form-switch">
                 <!-- Show Completed toggle switch state - reads switch state from POST req if available, and sets state accordingly-->
                 <% let completed_switch = '' %>
@@ -159,27 +162,26 @@
                 <label class="form-check-label" for="flexSwitchCheckChecked">Show completed</label>
               </div>
             </div>
-            <div class="col-1 me-1">
+            <!--SUBMIT button-->
+            <div class="col-md-3 col-lg-1 text-center">
               <button type="submit" class="btn btn-info btn-sm">Update</button>
             </div>
           </form>
         </div>
         <!--CARD CONTETNT variables. -->
-        <div class="row me-3">
+        <div class="row mt-1">
           <%elements.forEach((element)=> { %>
           <% //console.log(element); %>
           <% if (element.task_status_id == '1' && show_completed === 'off') { return} %>
           <!--CARD TEMPLATE. Earch loop will generate a new card with task specific data-->
-          <div class="col p-0 me-2 mt-4">
+          <div class="col p-0 me-2 mb-2">
             <div class="<%=getCardStyle(element.due_date, element.task_status_id)%>" style="max-width: 20rem; min-width: 15rem;">
               <div class="card-header">Due&nbsp;&nbsp;<%=formatDisplayDate(element.due_date)%>
                 <span style="float: right;"><img src="<%=getStarUrl(element.star_level)%>" alt="task priority img"></span>
               </div>
-
               <div class="card-body p-0 m-0">
                 <em>&nbsp;Category:&nbsp;</em><img src="<%=element.colour_url%>" alt="category_colour"><%=element.category_name%>
               </div>
-
               <div class="card-body p-1">
                 <a href="#" data-bs-toggle="modal" data-bs-target="#staticBackdrop" data-taskID="<%=element.task_id%>" data-task_name="<%=element.task_name%>" data-task_desc="<%=element.task_desc%>" data-dueDate="<%=element.due_date%>" data-cat="<%=element.task_category_id%>" data-task_status_id="<%=element.task_status_id%>" data-star="<%=element.star_level%>" style="text-decoration: none; color: rgb(30, 30, 30);">
                   <h5 class="card-title"><%=limitTextLength(element.task_name, 30)%></h5>
@@ -218,7 +220,7 @@
             <select class="form-select mb-3" aria-label="Default select example" id="modalCat" name="task_cat">
               <%let elementIndex = 1%>
               <% user_categories.forEach ((element) =>{  %>
-              <option value="<%=elementIndex++%>"><%=element.category_name%></option>
+              <option value="<%=element.task_category_id%>"><%=element.category_name%></option>
               <% }); %>
             </select>
 
@@ -236,7 +238,7 @@
             <div class="modal-footer">
               <a href="" class="btn btn-danger" id="delete_button">Delete</a>
               <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-primary">Update</button>
+              <button type="submit" id="update_button" class="btn btn-primary">Update</button>
               <a href="" class="btn btn-success" id="complete_button">Complete</a>
             </div>
 

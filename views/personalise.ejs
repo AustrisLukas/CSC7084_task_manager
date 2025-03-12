@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>New Task | TaskSync</title>
+    <title>Personalise | TaskSync</title>
     <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png">
@@ -33,7 +33,7 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <!-- Left-item -->
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                        <li class="nav-item ms-4">
+                        <li class="nav-item">
                             <a class="nav-link" href="/">mySync</a>
                         </li>
                         <li class="nav-item">
@@ -58,7 +58,7 @@
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
                             <li><a class="dropdown-item" href="#">Details</a></li>
-                            <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+                            <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
                         </ul>
                     </div>
                 </div>
@@ -66,15 +66,11 @@
         </nav>
     </header>
     <main>
-        <div class="row row-cols-2">
-            <!--ASIDE STATISTICS - LEFT 2-COLS -->
-            <div class="col-2">
-                
-            </div>
-            <!--MAIN CONTENT RIGHT 10-COLS-->
-
-            <div class="col-6 mt-1">
+        <div class="row row-cols-1 m-2">
+            <!--MAIN CONTENT RIGHT 12-COLS-->
+            <div class="col-12 mt-1">
                 <div class="col-8">
+                    <!--ERROR MESSAGE-->
                     <% if (error) { %>
                     <div class="alert alert-danger alert-dismissible fade show m-0 p-1" role="alert">
                         <%= error %>
@@ -84,6 +80,7 @@
                     <% } %>
                 </div>
                 <div class="col-8">
+                    <!--SUCCESS MESSAGE-->
                     <% if (success) { %>
                     <div class="alert alert-success alert-dismissible fade show m-0 p-1" role="alert">
                         <%= success %>
@@ -92,25 +89,28 @@
                     </div>
                     <% } %>
                 </div>
+                <!--MAIN CATEGORY FORM-->
                 <form action="/updateCategories" method="POST">
                     <div class="row mt-3">
-                        <div class="col-3"><label for="cat_name" class="form-label">
+                        <div class="col-6 col-md-4 col-lg-4"><label for="cat_name" class="form-label">
                                 <h5>Category Name</h5>
                             </label></div>
-                        <div class="col-3"><label for="cat_colour" class="form-label">
+                        <div class="col-6 col-md-4 col-lg-4"><label for="cat_colour" class="form-label">
                                 <h5>Category Colour</h5>
                             </label></div>
                     </div>
                     <% //console.log(elements) %>
+                    <!--OUTTER LOOP - CATEGORY NAME-->
                     <% elements.forEach((element) => { %>
-                    <div class="row">
-                        <div class="col-3 mb-2">
+                    <div class="row mt-2">
+                        <div class="col-6 col-md-4 col-lg-4">
                             <input type="hidden" name="task_category_id" value="<%=element.task_category_id%>">
                             <input type="text" class="form-control" name="category_name"
                                 value="<%=element.category_name%>" required>
                         </div>
-                        <div class="col-3 mb-2">
+                        <div class="col-6 col-md-4 col-lg-4">
                             <select class="form-select" name="colour_id">
+                                 <!--INNER LOOP - COLOUR-->
                                 <% availableColours.forEach((elementInner) => { %>
                                 <% //console.log(elementInner) %>
                                 <% let selectedOption = '' %>
@@ -123,14 +123,14 @@
                     </div>
 
                     <%}); %>
-                    <div class="row m-2">
-                        <div class="col-6 d-flex justify-content-end">
+                    <div class="row mt-2">
+                        <div class="col-12 col-md-8 col-lg-8 d-flex justify-content-end">
                             <button type="submit" class="btn btn-primary">Save Changes</button>
                         </div>
                     </div>
                 </form>
-                <div class="row">
-                    <div class="col-6 d-flex justify-content-end">
+                <div class="row mt-2 ">
+                    <div class="col-12 col-md-8 col-lg-8 d-flex justify-content-end">
                         <!-- Button trigger modal -->
                         <!-- Disable button if 5 or more cateogries already defined.  -->
                          <%let allowNewCategories = ' '%>
