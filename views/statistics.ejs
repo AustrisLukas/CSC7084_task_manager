@@ -1,148 +1,188 @@
 <!DOCTYPE html>
 <html lang="en" style="max-width: 1700px; margin: 0 auto">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Statistics | TaskSync</title>
+    <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
+    <link href="/../css/custom.css" rel="stylesheet" />
+    <link rel="stylesheet" href="/../css/newTask.css" />
+    <script src="/js/statsGraphs.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>New Task | TaskSync</title>
-  <link rel="apple-touch-icon" sizes="180x180" href="/favicon/apple-touch-icon.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
-  <link href="/../css/custom.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/../css/newTask.css" />
-  <script src="/js/statsGraphs.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-</head>
+  <body>
+    <header>
+      <nav class="navbar navbar-expand-lg bg-body-tertiary pt-0 pr-2 mt-0">
+        <div class="container-fluid pt-2">
+          <!-- TaskSync logo -->
+          <a class="navbar-brand" href="#">
+            <img src="/images/TaskSyncLogo.png" alt="TaskSync brand logo" height="30px" />
+          </a>
 
-<body>
-  <header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary pt-0 pr-2 mt-0">
-      <div class="container-fluid pt-2">
-        <!-- TaskSync logo -->
-        <a class="navbar-brand" href="#">
-          <img src="/images/TaskSyncLogo.png" alt="TaskSync brand logo" height="30px" />
-        </a>
+          <!-- Mobile View Toggler-->
+          <button
+            class="navbar-toggler"
+            type="button"
+            data-bs-toggle="collapse"
+            data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent"
+            aria-expanded="false"
+            aria-label="Toggle navigation"
+          >
+            <span class="navbar-toggler-icon"></span>
+          </button>
 
-        <!-- Mobile View Toggler-->
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Navbar Content -->
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-          <!-- Left-item -->
-          <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-            <li class="nav-item ms-4">
-              <a class="nav-link" href="/">mySync</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/new">New Task</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Statistics</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/personalise">Personalise</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
-            </li>
-          </ul>
-
-          <!-- Right-items -->
-          <div class="dropdown ms-auto">
-            <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-              Profile
-            </button>
-            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
-              <li><a class="dropdown-item" href="#">Details</a></li>
-              <li><a class="dropdown-item" href="/logout">Log Out</a></li>
+          <!-- Navbar Content -->
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <!-- Left-item -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="/">mySync</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/new">New Task</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="#">Statistics</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/personalise">Personalise</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">About</a>
+              </li>
             </ul>
-          </div>
-        </div>
-      </div>
-    </nav>
-  </header>
-  <main>
-    <div class="row row-cols-2">
-      <!--ASIDE STATISTICS - LEFT 2-COLS -->
-      <div class="col-2"></div>
-      <!--MAIN CONTENT RIGHT 10-COLS-->
-      <div class="col-10 mt-1">
-        <div class="row mt-3">
-            <h4 class="mb-5">Statistics Dashboard</h4>
-            <!--TABLE SUMMARY -> Open/closed Tasks-->
-            <div class="col-6">
-              <table class=" table table-hover table-striped">
-                  <tbody>
-                    <tr>
-                      <th>Open Tasks</th>
-                      <td><%=taskOpenCompleteSummary.open%></td>
-                    </tr>
-                    <tr>
-                      <th>Completed Tasks</th>
-                      <td><%=taskOpenCompleteSummary.complete%></td>
-                    </tr>
-                    <tr>
-                      <th>Average time-to-completion</th>
-                      <td><%=taskOpenCompleteSummary.averageDays%>&nbspDays</td>
-                    </tr>
-                  </tbody>
-                </table>
+
+            <!-- Right-items -->
+            <div class="dropdown ms-auto">
+              <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+                Profile
+              </button>
+              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton">
+                <li><a class="dropdown-item" href="#">Details</a></li>
+                <li><a class="dropdown-item" href="/auth/logout">Log Out</a></li>
+              </ul>
             </div>
-            <!--TABLE SUMMARY -> Priority Levels-->
-            <div class="col-6">
-                <table class=" table table-hover table-striped">
-                    <tbody>
-                      <tr>
-                        <th><img src="<%=getStarUrl(2)%>" alt="star-2">&nbsp;Urgent Priority</th>
-                        <td><%=taskUrgencySummary.urgentPriority%></td>
-                      </tr>
-                      <tr>
-                        <th><img src="<%=getStarUrl(1)%>" alt="star-1">&nbsp;Priority</th>
-                        <td><%=taskUrgencySummary.priority%></td>
-                      </tr>
-                      <tr>
-                        <th><img src="<%=getStarUrl(0)%>" alt="star-0">&nbsp;Non-urgent</th>
-                        <td><%=taskUrgencySummary.nonPriority%></td>
-                      </tr>
-                    </tbody>
-                  </table>
-              </div>
           </div>
-        <div class="row mt-3">
-          <div class="col-6">
-            <canvas class="m-2" id="categoryChart" width="400" height="200"></canvas>
+        </div>
+      </nav>
+    </header>
+    <main>
+      <div class="row row-cols-1 m-2">
+        <!--MAIN CONTENT RIGHT 12-COLS-->
+        <div class="col-12 mt-1">
+          <div class="row mt-3">
+            <h4 class="mb-5">Statistics Dashboard</h4>
 
-            <script>
-              const chartData = <%- chartData %>
-              document.addEventListener("DOMContentLoaded", function() {
-                if (chartData.labels && chartData.labels.length > 0) {
-                  createCategoryGraph(chartData);
-                } else {
-                  console.warn("No data available for chart.");
-                }
-              });
-            </script>
+            <!--TABLE SUMMARY -> Open/closed Tasks-->
+            <div class="col-12 col-md-3 col-lg-3 d-flex align-items-end">
+              <table class="table table-hover table-striped">
+                <tbody>
+                  <tr>
+                    <th>Open Tasks</th>
+                    <td><%=taskOpenCompleteSummary.open%></td>
+                  </tr>
+                  <tr>
+                    <th>Completed Tasks</th>
+                    <td><%=taskOpenCompleteSummary.complete%></td>
+                  </tr>
+                  <tr>
+                    <th>Average time-to-completion</th>
+                    <td><%=taskOpenCompleteSummary.averageDays%>&nbspDays</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!--OPEN / COMPLETE GRAPH-->
+            <div class="col-8 col-md-3 col-lg-3">
+              <canvas class="m-2" id="opencloseChart" width="400" height="200"></canvas>
+              <script>
+                const taskOpenCompleteSummary = <%- JSON.stringify(taskOpenCompleteSummary) %>
+                document.addEventListener("DOMContentLoaded", function() {
+                  if (taskOpenCompleteSummary != null) {
+                    createOpenCloseGraph(taskOpenCompleteSummary);
+                  } else {
+                    console.warn("No data available for chart.");
+                  }
+                });
+              </script>
+            </div>
+
+            <!--TABLE SUMMARY -> Priority Levels-->
+            <div class="col-12 col-md-3 col-lg-3 d-flex align-items-end">
+              <table class="table table-hover table-striped">
+                <tbody>
+                  <tr>
+                    <th><img src="<%=getStarUrl(2)%>" alt="star-2" />&nbsp;Urgent Priority</th>
+                    <td><%=taskUrgencySummary.urgentPriority%></td>
+                  </tr>
+                  <tr>
+                    <th><img src="<%=getStarUrl(1)%>" alt="star-1" />&nbsp;Priority</th>
+                    <td><%=taskUrgencySummary.priority%></td>
+                  </tr>
+                  <tr>
+                    <th><img src="<%=getStarUrl(0)%>" alt="star-0" />&nbsp;Non-urgent</th>
+                    <td><%=taskUrgencySummary.nonPriority%></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!--PRIORITY GRAPH-->
+            <div class="col-8 col-md-3 col-lg-3">
+              <canvas class="m-2" id="taskUrgencyGraph" width="400" height="200"></canvas>
+              <script>
+                const taskUrgencySummary = <%- JSON.stringify(taskUrgencySummary) %>
+                document.addEventListener("DOMContentLoaded", function() {
+                  if (taskUrgencySummary != null) {
+                    createTaskUrgencyGraph(taskUrgencySummary);
+                  } else {
+                    console.warn("No data available for chart.");
+                  }
+                });
+              </script>
+            </div>
           </div>
-          <div class="col-4">
-            <canvas class="m-2" id="dueSummaryChart" width="50" height="50"></canvas>
-            <script>
-              const tasksDueSummary = <%- tasksDueSummary %>
-              document.addEventListener("DOMContentLoaded", function() {
-                if (tasksDueSummary.labels && tasksDueSummary.labels.length > 0) {
-                  createDueSummaryGraph(tasksDueSummary);
-                } else {
-                  console.warn("No data available for chart.");
-                }
-              });
-            </script>
+          <!-- CATEGORY BAR CHART-->
+          <div class="row mt-3 d-flex align-items-end">
+            <div class="col-12 col-md-6 col-lg-6">
+              <canvas class="m-2" id="categoryChart" width="400" height="200"></canvas>
+              <script>
+                const chartData = <%- chartData %>
+                document.addEventListener("DOMContentLoaded", function() {
+                  if (chartData.labels && chartData.labels.length > 0) {
+                    createCategoryGraph(chartData);
+                  } else {
+                    console.warn("No data available for chart.");
+                  }
+                });
+              </script>
+            </div>
+            <!-- TASK DUE STATUS DOUGHNUT-->
+            <div class="col-8 col-md-3 col-lg-3">
+              <canvas class="m-2" id="dueSummaryChart" width="50" height="50"></canvas>
+              <script>
+                const tasksDueSummary = <%- tasksDueSummary %>
+                document.addEventListener("DOMContentLoaded", function() {
+                  if (tasksDueSummary.labels && tasksDueSummary.labels.length > 0) {
+                    createDueSummaryGraph(tasksDueSummary);
+                  } else {
+                    console.warn("No data available for chart.");
+                  }
+                });
+              </script>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </main>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-</body>
-
+    </main>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+      crossorigin="anonymous"
+    ></script>
+  </body>
 </html>
