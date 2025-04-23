@@ -29,6 +29,35 @@ app.use(
     })
 );
 
+
+// API security - attaching req.token with every axios call
+app.use((req, res, next) => {
+    if (req.session.token) {
+      global.sessionToken = req.session.token; // Store session token globally
+      global.sessionUser = req.session.user;
+    }
+    next();
+  });
+
+// Attach the token from req.session to every Axios request
+axios.interceptors.request.use(
+  (config) => {
+    // Ensure token exists in session
+    if (global.sessionToken) {
+      config.headers.Authorization = `Bearer ${global.sessionToken}`;
+      config.headers.user_id = global.sessionUser.user_id || " ";
+    }
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
+
+
+
+  
+
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 

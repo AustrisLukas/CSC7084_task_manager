@@ -34,7 +34,11 @@ exports.renderHome = async (req, res) => {
     //SIDE STATS PANEL -> taskDueSummary
     const tasksDueSummary = await axios.get(endpoint_tasksDueSummary);
     //user specific categories
-    const userCategories = await axios.get(endpoint_userCategories);
+    const userCategories = await axios.get(endpoint_userCategories, {
+      headers: {
+        'Authorization': `Bearer ${req.session.token}`
+      }
+    });
     // extract values from .json object
     const categoryArray = Object.values(userCategories.data);
     // put values in a string array
@@ -186,6 +190,7 @@ exports.deleteTask = async (req, res) => {
     logMessage(response.data.message);
     return res.redirect("/");
   } catch (err) {
+    if (err.response.status == 401) return res.status(401).send("<h1> Error 401 - Unauthorised Action.</h1><br><p1>Unable to perform action - user_id missmatch</p>");
     logMessage(err.response.data.message);
     return res.redirect("/");
   }
