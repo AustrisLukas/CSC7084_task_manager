@@ -8,6 +8,7 @@ const auth = require(path.join(__dirname, '/routes/authRoutes.js'));
 const { format } = require('date-fns');
 const { logMessage } = require('./utils/homeUtils.js');
 const axios = require("axios");
+const cors = require('cors');
 
 
 //const cookieParser = require("cookie-parser");
@@ -20,6 +21,11 @@ app.use(express.urlencoded({ extended: true }));
 //app.use(cookieParser());
 //app.use(morgan('tiny'));
 app.use(express.static(path.join(__dirname, '/public')));
+
+app.use(cors({
+  origin: 'https://tasksync-v1-avg6aabqb8b5eyh7.westeurope-01.azurewebsites.net', 
+  credentials: true // if you send cookies / sessions
+}));
 app.use(
     session({
         name: "SESSIONID",
