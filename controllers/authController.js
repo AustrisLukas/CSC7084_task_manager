@@ -37,6 +37,7 @@ exports.processLogin = async (req, res) => {
     req.session.user = response.data.users[0];
     res.redirect("/");
   } catch (err) {
+    console.log(err);
     if (err.response.status === 400) return res.render('login', {error: `${err.response.data.errorMessages}`})
     if (err.response.status === 401) return res.render("login", {error: `${err.response.data.error}`});
     if (err.response.status === 404) return res.render("login", {error: `${err.response.data.error}`});
