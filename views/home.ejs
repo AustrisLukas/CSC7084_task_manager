@@ -164,18 +164,18 @@
             </div>
             <!--SUBMIT button-->
             <div class="col-md-3 col-lg-1 text-center">
-              <button type="submit" class="btn btn-info btn-sm">Update</button>
+              <button type="submit" class="btn btn-info btn-sm mt-1">Update</button>
             </div>
           </form>
         </div>
         <!--CARD CONTETNT variables. -->
         <div class="row mt-1">
           <%elements.forEach((element)=> { %>
-          <% //console.log(element); %>
+          <% //console.log(element.size); %>
           <% if (element.task_status_id == '1' && show_completed === 'off') { return} %>
           <!--CARD TEMPLATE. Earch loop will generate a new card with task specific data-->
           <div class="col p-0 me-2 mb-2">
-            <div class="<%=getCardStyle(element.due_date, element.task_status_id)%>" style="max-width: 20rem; min-width: 15rem;">
+            <div class="<%=getCardStyle(element.due_date, element.task_status_id)%>" style="max-width: 30rem; min-width: 15rem;">
               <div class="card-header">Due&nbsp;&nbsp;<%=formatDisplayDate(element.due_date)%>
                 <span style="float: right;"><img src="<%=getStarUrl(element.star_level)%>" alt="task priority img"></span>
               </div>
@@ -192,6 +192,18 @@
           </div>
           <% }); %>
         </div>
+
+        <% if (elements.size == undefined) {%>
+        <div class="col-12 text-center mt-5">
+          <img src="/images/notasklogo.png" alt="no tasks logo">
+          <p>
+            You do not have any tasks..
+            <br>
+            <a href="/new">New Task</a>
+          </p>
+
+        </div>
+        <% } %>
       </div>
     </div>
 
